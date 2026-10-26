@@ -5,11 +5,21 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: https://github.com/alvarolinarescabre/go-counter-href-10-sites.git
-    targetRevision: main
-    path: deploy/helm/counter-api
-    values: values.yaml
+  sources:
+    - repoURL: https://github.com/alvarolinarescabre/huma-counter-href-10-sites.git
+      targetRevision: main
+      path: gitops
+      helm:
+        valuesObject:
+          # The chart's Ingress targets a self-managed AWS Load Balancer
+          # Controller (class "alb"), which this cluster does not run; the app
+          # is exposed through kgateway instead (see the source below).
+          ingress:
+            enabled: false
+    # Gateway + HTTPRoute that expose the app through kgateway on an NLB.
+    - repoURL: https://github.com/alvarolinarescabre/eks-argocd-go-counter-href-10-sites.git
+      targetRevision: main
+      path: argocd/app/gateway
   destination:
     server: https://kubernetes.default.svc
     namespace: counter-api

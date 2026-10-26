@@ -75,7 +75,8 @@ manifests and then hands off control to Argo CD's own sync loop.
 └── argocd/
     ├── app/
     │   ├── app-project.yaml     # ArgoCD AppProject: go-counter-href-10-sites-project
-    │   └── application.yaml     # ArgoCD Application: counter-api (external Git repo source)
+    │   ├── application.yaml     # ArgoCD Application: counter-api (external Git repo source)
+    │   └── gateway/             # Gateway + GatewayParameters (NLB) + HTTPRoute (2nd Argo source)
     └── kgateway/
         ├── standard-install.yaml # Upstream Gateway API "standard" channel CRDs
         ├── crds-helm.yaml        # ArgoCD Application installing the kgateway-crds Helm chart
@@ -123,9 +124,14 @@ manifests and then hands off control to Argo CD's own sync loop.
 ### Application (`05-app-deployment.tf`)
 - **AppProject** `go-counter-href-10-sites-project` scoping allowed source repos/destinations.
 - **Application** `counter-api`, sourced from
-  [`go-counter-href-10-sites`](https://github.com/alvarolinarescabre/go-counter-href-10-sites.git)
-  (`deploy/helm/counter-api`, branch `main`), deployed into the `counter-api` namespace
-  with automated sync (`prune`, `selfHeal`, `CreateNamespace=true`).
+  [`huma-counter-href-10-sites`](https://github.com/alvarolinarescabre/huma-counter-href-10-sites.git)
+  (`gitops`, branch `main`, image `ghcr.io/alvarolinarescabre/huma-counter-href-10-sites:latest`),
+  deployed into the `counter-api` namespace with automated sync (`prune`, `selfHeal`,
+  `CreateNamespace=true`). The chart's ALB Ingress is disabled.
+- A second source of the same Application, `argocd/app/gateway/` in this repo, exposes it
+  through kgateway: a `Gateway` whose
+  `GatewayParameters` request an internet-facing NLB from EKS Auto Mode
+  (`loadBalancerClass: eks.amazonaws.com/nlb`), and an `HTTPRoute` to the chart's Service.
 
 ## Prerequisites
 

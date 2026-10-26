@@ -13,7 +13,7 @@ To Login ArgoCD:
 
 Go Hit 10 App:
 --------------
-After deploy on ArgoCD, Run this command: 'kubectl get httproutes.gateway.networking.k8s.io -n counter-api' and uses the HOSTNAMES from 'counter-api' and uses it on you hosts file with your NLB address.
+After deploy on ArgoCD, Run this command: 'kubectl get gateway public-nlb-gateway -n counter-api' and open http://<ADDRESS>/ (the NLB DNS name; it can take a few minutes to resolve).
 
 
 To Destroy:

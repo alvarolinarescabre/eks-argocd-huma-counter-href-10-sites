@@ -1,0 +1,50 @@
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: GatewayParameters
+metadata:
+  name: public-nlb-params
+  namespace: counter-api
+spec:
+  kube:
+    service:
+      # EKS Auto Mode provisions the NLB only for Services with its own class.
+      loadBalancerClass: eks.amazonaws.com/nlb
+      extraAnnotations:
+        service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+        service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: public-nlb-gateway
+  namespace: counter-api
+spec:
+  gatewayClassName: kgateway
+  infrastructure:
+    parametersRef:
+      group: gateway.kgateway.dev
+      kind: GatewayParameters
+      name: public-nlb-params
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+---
+# No hostnames: the app answers on the NLB's DNS name directly.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: counter-api
+  namespace: counter-api
+spec:
+  parentRefs:
+    - name: public-nlb-gateway
+      sectionName: http
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        # The chart names its Service after the release (the Application name).
+        - name: counter-api
+          port: 80

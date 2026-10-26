@@ -24,6 +24,6 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 data "kubectl_file_documents" "kgateway_crds" {
-    content = file("${path.root}/argocd/kgateway/standard-install.yaml")
+  content = file("${path.root}/argocd/kgateway/standard-install.yaml")
 
 }

@@ -8,7 +8,7 @@ resource "kubectl_manifest" "kgateway_crds" {
 resource "kubectl_manifest" "kgateway_helm_cdrs" {
   yaml_body = file("${path.root}/argocd/kgateway/crds-helm.yaml")
 
-  depends_on = [kubectl_manifest.kgateway_crds]
+  depends_on = [kubectl_manifest.kgateway_crds, helm_release.argocd]
 }
 
 resource "kubectl_manifest" "kgateway_helm" {
