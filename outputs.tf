@@ -7,7 +7,7 @@ Run this command to update ~/.kube/config file: 'aws eks update-kubeconfig --reg
 
 To Login ArgoCD:
 ----------------
-1) Run this command: 'kubectl get ingress -n argocd' and uses the ADDRESS from 'argocd-server'
+1) Run this command: 'kubectl port-forward -n argocd services/argocd-server 8080:80' and go to 'http://127.0.0.1:8080'
 2) Uses user 'admin'
 3) Password run this command to get the initial password: 'kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d'
 
